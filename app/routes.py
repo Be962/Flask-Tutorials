@@ -8,7 +8,7 @@ from app.forms import LoginForm
 from flask_login import login_required
 from flask import request
 from urllib.parse import urlsplit
-
+from app.forms import RegistrationForm
 
 @app.route('/logout')
 def logout():
@@ -31,8 +31,12 @@ def login():
         if not next_page or urlsplit(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-        return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/no_title')
+def no_title():
+    user = {'username': 'Moose'}
+    return render_template('index.html', user=user)
 
 @app.route('/')
 @app.route('/index')
@@ -52,10 +56,19 @@ def index():
             'body': 'You know we are fake posts in a flask application, right?'
         }
     ]
-    return render_template('index.html', title='Home', user=user, posts=posts)
+    return render_template('index.html', title='Home', posts=posts)  
 
-@app.route('/')
-@app.route('/index')
-@login_required
-def index():
-    return render_template("index.html", title='Home Page', posts=posts)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+
