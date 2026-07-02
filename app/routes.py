@@ -14,7 +14,6 @@ from datetime import datetime, timezone
 
 
 def index():
-    user = {'username': 'Moose'}
     posts = [
         {
             'author': {'username': 'Reggie'},
@@ -25,7 +24,7 @@ def index():
             'body': 'Awooooooooo!'
         }
     ]
-    return render_template('index.html', title='Home', posts=posts)
+    return render_template('index.html', title='Home', post=posts)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
